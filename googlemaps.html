@@ -9,7 +9,15 @@
 <div id="map" style="width:400px; height:400px; background-color:yellow"></div>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js">
 </script>
+<style type="text/css">
+    .customBox {
+      background: yellow;
+      border: 1px solid black;
+      position: absolute;
+    }
+  </style>
 <script type="text/javascript">
+var lat1, lng1, map, temp1, x, input;
  var openWeatherUrl="http://api.openweathermap.org/data/2.5/weather";
     var openWeatherAppId="891d6153b1132bd6b88831ea046f37b3";
 function myMap()
@@ -17,23 +25,27 @@ function myMap()
 		var mapOptions={
 			center:new google.maps.LatLng(51.5,-0.12),
 			zoom:10,
-			mapTypeId:google.maps.MapTypeId.HYBRID
+			mapTypeId:google.maps.MapTypeId.ROADMAP
 		}
-		var map=new google.maps.Map(document.getElementById("map"),mapOptions);
-	/*    var marker=new google.maps.Marker({
-	    	position:{
-	    		lat:51.5,
-	    		lng:-0.12
-	    	},
-	    	map:map,
-	    	draggable:true
-	    });*/
+		map=new google.maps.Map(document.getElementById("map"),mapOptions);
 	    google.maps.event.addListener(map,"rightclick",function(event){
 		var lat=event.latLng.lat();
 		var lng=event.latLng.lng(); 
 		getData(openWeatherUrl, lat , lng, openWeatherAppId)
 		});                                                                              
 }
+    function init() {
+      var latlng = new google.maps.LatLng(lat1, lng1);
+      var marker = new google.maps.Marker({
+        position: latlng,
+        map: map,
+        title: "Temperature"
+      });
+      var infoWindow=new google.maps.InfoWindow();
+      getData1(openWeatherUrl, input, openWeatherAppId);
+      infoWindow.setContent("Temperature:"+temp1);
+      infoWindow.open(map,marker);
+    }
  function getData(url, lat, lon, appId) {
     	var request=$.ajax({
     		url:url,
@@ -43,67 +55,44 @@ function myMap()
     		type:"GET"
     	});
     }
-    function fetchData(weather){
-    	var temp=Math.round(weather.main.temp);
-    	$('#response').text(temp);
-    }
-/*	    var searchBox=new google.maps.places.SearchBox(document.getElementById('city-name'));
-	    google.maps.event.addListener(searchBox,'places_changed,',function(){
-	    	var places=searchBox.getPlaces();
-	    	var bounds=new google.maps.LatLngBounds();
-	    	var i,place;
-	    	for(i=0;place=places[i];i++){
-	    	//	console.log(place.geometry.location);
-	    		bounds.extend(place.geometry.location);
-	    		marker.setPosition(place.geometry.location);
-	    	}
-              map.fitBounds(bounds);
-              map.setZoom(10);
-	    });*/
- //   }
- /*   var prepareData=function(){
-	var cityName=$('#city-name').val();
-	if(cityName&& cityName!='')
-	{
-      cityName=cityName.trim();
-      getData(openWeatherUrl, cityName, openWeatherAppId);
-	}
-	else
-		alert("Please enter city name");
+    function initialise(){
+   input=document.getElementById("city_name").value;
+   var geocoder=new google.maps.Geocoder();
+   geocoder.geocode({'address':input}, function(results, status){
+   	if(status==google.maps.GeocoderStatus.OK){
+   		lat1=results[0].geometry.location.lat();
+   		lng1=results[0].geometry.location.lng();
+   	}
+   });
+   init();
 }
-    $(document).ready(function(){
-    	$('#gettemp').click(function(){
-    		prepareData()
-    	})
-    })
-    function getData(url, cityName, appId) {
+    function getData1(url, place, appId){
     	var request=$.ajax({
     		url:url,
     		dataType:"jsonp",
-    		data:{q:cityName, appid:appId},
-    		jsonpCallback:"fetchData",
+    		data:{q:place, appid:appId},
+    		jsonpCallback:"fetchData1",
     		type:"GET"
-    	}).fail(function(error){
-    console.error(error);
-    		alert("Error sending request");
-    	})
+    	});
     }
-    function fetchData(forecast){
-    	console.log(forecast);
-    	var html='',
-    	cityName=forecast.city.name,
-    	country=forecast.city.country;
-    	html+='<h3>Weather forecast for'+cityName+','+country+'</h3>';
-    	forecast.list.forEach(function(forecastEntry, index, list){
-    		html+='<p>'+forecastEntry.dt_txt+':'+forecastEntry.main.temp+'</p>';
-    	})
-    	$('#log').html(html);
-    }*/
+    function fetchData1(weather){
+     temp1=Math.round(weather.main.temp);
+    }
+    function fetchData(weather){
+    	var temp=Math.round(weather.main.temp);
+    	var humidity=Math.round(weather.main.humidity);
+    	var pressure=Math.round(weather.main.pressure);
+    	var temp_min=Math.round(weather.main.temp_min);
+    	var temp_max=Math.round(weather.main.temp_max);
+    	var wind_speed=Math.round(weather.wind.speed);
+    	var result="Weather conditions:\nTemperature="+temp+"\nHumidity="+humidity+"\nPressure="+pressure+"\nMaximum Temperature="+temp_max+"\nMinimum Temperature="+temp_min+"\nWind Speed="+wind_speed;
+    	$('#response').text(result);
+    }
 </script>
-<script src ="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4_7GT2jaQiMSfv3L5DAt8FqPk_udipa4&callback=myMap";>
+<script src ="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4_7GT2jaQiMSfv3L5DAt8FqPk_udipa4&callback=myMap&sensor=false";>
 </script>
-<input type="text" placeholder="Enter city name" id="city-name" value="" autocomplete="on">
-<input type="button" name="btn_weather" value="Get temperature" id="gettemp">
+<input type="text" placeholder="Enter city name" id="city_name" value="" >
+<input type="button" name="btn_weather" value="Get temperature" id="gettemp" onclick="initialise()">
 <div id="response"></div>
 </body>
 </html>
