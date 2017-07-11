@@ -89,10 +89,14 @@ function myMap()
     	$('#response').text(result);
     }
 </script>
-<script src ="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4_7GT2jaQiMSfv3L5DAt8FqPk_udipa4&callback=myMap&sensor=false";>
+<script src ="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4_7GT2jaQiMSfv3L5DAt8FqPk_udipa4&callback=myMap&sensor=false&libraries=places&language=en";>
 </script>
 <input type="text" placeholder="Enter city name" id="city_name" value="" >
 <input type="button" name="btn_weather" value="Get temperature" id="gettemp" onclick="initialise()">
+<script type="text/javascript">
+	var text=document.getElementById('city_name');
+	var autocomplete=new google.maps.places.Autocomplete(text);
+</script>
 <div id="response"></div>
 </body>
 </html>
