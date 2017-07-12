@@ -20,8 +20,10 @@
 var lat1, lng1, map, temp1, x, input;
  var openWeatherUrl="http://api.openweathermap.org/data/2.5/weather";
     var openWeatherAppId="891d6153b1132bd6b88831ea046f37b3";
+    var url="http://tile.openweathermap.org/map/temp_new/10/100/100.png";
 function myMap()
 	{
+		weather_map(url, openWeatherAppId);
 		var mapOptions={
 			center:new google.maps.LatLng(51.5,-0.12),
 			zoom:10,
@@ -34,6 +36,14 @@ function myMap()
 		getData(openWeatherUrl, lat , lng, openWeatherAppId)
 		});                                                                              
 }
+   function weather_map(url, appId)
+   {
+   var request=	$.ajax({
+   		url:url,
+   		data:{ appid:appId}
+   	});
+   $('#map').html(request);
+   }
     function init() {
       var latlng = new google.maps.LatLng(lat1, lng1);
       var marker = new google.maps.Marker({
